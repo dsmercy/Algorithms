@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Algorithms.Controllers
 {
-    [Route("api/")]
+    [Route("api/string")]
     [ApiController]
     public class StringHandlingController : ControllerBase
     {
@@ -13,7 +13,7 @@ namespace Algorithms.Controllers
         /// Reverse a String
         /// </summary>
         /// <returns></returns>
-        [HttpGet("reversestring")]
+        [HttpGet("reverse")]
         public IActionResult ReverseString(string input)
         {
             string stringOutput = string.Empty;
@@ -34,7 +34,7 @@ namespace Algorithms.Controllers
         }
 
         /// <summary>
-        /// Reverse a Sentence with changing order of strings 
+        /// Reverse a Sentence with changing order of words
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withorder")]
@@ -58,7 +58,7 @@ namespace Algorithms.Controllers
         }
 
         /// <summary>
-        /// Reverse a Sentence without changing order of strings 
+        /// Reverse a Sentence without changing order of words
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withoutorder")]
@@ -89,7 +89,7 @@ namespace Algorithms.Controllers
         /// Palindrome (reads the same forwards and backwards).
         /// </summary>
         /// <returns></returns>
-        [HttpGet("string/palindrome")]
+        [HttpGet("palindrome")]
         public IActionResult Palindrome(string input)
         {
             string stringOutput = string.Empty;
@@ -113,7 +113,7 @@ namespace Algorithms.Controllers
         /// Count the occurrences of all characters in a string
         /// </summary>
         /// <returns></returns>
-        [HttpGet("string/char/occurnace")]
+        [HttpGet("char/occurnace")]
         public IActionResult CharOccurnace(string input)
         {
             // Create a dictionary to store character counts
@@ -150,7 +150,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        [HttpGet("string/remove/duplicate")]
+        [HttpGet("remove/duplicate")]
         public IActionResult RemoveDuplicates(string input)
         {
             char[] charArray = input.ToCharArray();
@@ -172,7 +172,7 @@ namespace Algorithms.Controllers
         /// Determine if two strings are anagrams of each other(strings contains same characters)
         /// </summary>
         /// <returns></returns>
-        [HttpGet("string/anagram")]
+        [HttpGet("anagram")]
         public IActionResult AnagramStrings(string input, string input2)
         {
             char[] charArray1 = input.ToCharArray();
@@ -187,7 +187,7 @@ namespace Algorithms.Controllers
         /// Substring Search
         /// </summary>
         /// <returns></returns>
-        [HttpGet("string/substring/replace")]
+        [HttpGet("substring/replace")]
         public IActionResult SubstringSearch(string mainString, string subString)
         {
             return Ok(mainString.Contains(subString)?"Yes":"No");
@@ -197,7 +197,7 @@ namespace Algorithms.Controllers
         /// Substring Replace
         /// </summary>
         /// <returns></returns>
-        [HttpGet("string/substring/search")]
+        [HttpGet("substring/search")]
         public IActionResult SubstringReplace(string mainString, string oldSubstring, string newSubstring)
         {
             return Ok(mainString.Replace(oldSubstring, newSubstring));
