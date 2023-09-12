@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Data.SqlTypes;
-using System.Linq;
 
 namespace Algorithms.Controllers
 {
@@ -14,7 +11,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse")]
-        public IActionResult ReverseString(string input)
+        public IActionResult ReverseString(string input="abcdef")
         {
             string stringOutput = string.Empty;
 
@@ -38,7 +35,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withorder")]
-        public IActionResult ReverseSentence(string input)
+        public IActionResult ReverseSentence(string input="do you bleed")
         {
             string stringOutput = string.Empty;
 
@@ -62,7 +59,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withoutorder")]
-        public IActionResult ReverseSentenceWithoutOrder(string input)
+        public IActionResult ReverseSentenceWithoutOrder(string input="you will")
         {
             string[] inputStringArray = input.Split(' ');
 
@@ -86,11 +83,24 @@ namespace Algorithms.Controllers
         }
 
         /// <summary>
+        /// sort a string in alphabetical order
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("sort/alphabetical")]
+        public IActionResult SortString(string input="bcadgf")
+        {
+            char[] inputStringArray = input.ToCharArray();
+            Array.Sort(inputStringArray);
+            
+            return Ok((new string(inputStringArray)));
+        }
+
+        /// <summary>
         /// Palindrome (reads the same forwards and backwards).
         /// </summary>
         /// <returns></returns>
         [HttpGet("palindrome")]
-        public IActionResult Palindrome(string input)
+        public IActionResult Palindrome(string input="abba")
         {
             string stringOutput = string.Empty;
 
@@ -114,7 +124,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("char/occurnace")]
-        public IActionResult CharOccurnace(string input)
+        public IActionResult CharOccurnace(string input="")
         {
             // Create a dictionary to store character counts
             Dictionary<char, int> charCounts = new Dictionary<char, int>();

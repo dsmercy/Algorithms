@@ -15,16 +15,16 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Title = "Algorithms API",
         Description = "An ASP.NET Core Web API for Algorithms",
-        TermsOfService = new Uri("https://example.com/terms"),
-        Contact = new OpenApiContact
-        {
-            Name = "Example Contact",
-            Url = new Uri("https://example.com/contact")
-        },
+        //TermsOfService = new Uri("https://example.com/terms"),
+        //Contact = new OpenApiContact
+        //{
+        //    Name = "Example Contact",
+        //    Url = new Uri("https://example.com/contact")
+        //},
         License = new OpenApiLicense
         {
-            Name = "Example License",
-            Url = new Uri("https://example.com/license")
+            Name = "View Code on Github",
+            Url = new Uri("https://github.com/dsmercy/Algorithms")
         }
     });
 
