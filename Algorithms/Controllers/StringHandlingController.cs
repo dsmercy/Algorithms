@@ -95,29 +95,7 @@ namespace Algorithms.Controllers
             return Ok((new string(inputStringArray)));
         }
 
-        /// <summary>
-        /// Palindrome (reads the same forwards and backwards).
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("palindrome")]
-        public IActionResult Palindrome(string input="abba")
-        {
-            string stringOutput = string.Empty;
-
-            for (int i = input.Length - 1; i >= 0; i--)
-            {
-                stringOutput += input[i];
-            }
-
-            return Ok(stringOutput == input ? "Palindrome" : "Not Palindrome");
-
-            //with inbuilt function
-
-            //char[] charArray = input.ToCharArray();
-            //Array.Reverse(charArray);
-            //return Ok(Ok(new string(charArray) == input ? "Palindrome" : "Not Palindrome"));
-
-        }
+        
 
         /// <summary>
         /// Count the occurrences of all characters in a string
@@ -177,21 +155,7 @@ namespace Algorithms.Controllers
             //with inbuilt function
             //return Ok(new string(input.Distinct().ToArray()));
         }
-
-        /// <summary>
-        /// Determine if two strings are anagrams of each other(strings contains same characters)
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("anagram")]
-        public IActionResult AnagramStrings(string input, string input2)
-        {
-            char[] charArray1 = input.ToCharArray();
-            char[] charArray2 = input2.ToCharArray();
-            Array.Sort(charArray1);
-            Array.Sort(charArray2);
-            return Ok(new string(charArray1) == new string(charArray2)?"Anagram":"Not Anagram");
-
-        }
+               
 
         /// <summary>
         /// Substring Search
@@ -211,6 +175,45 @@ namespace Algorithms.Controllers
         public IActionResult SubstringReplace(string mainString, string oldSubstring, string newSubstring)
         {
             return Ok(mainString.Replace(oldSubstring, newSubstring));
+        }
+
+        /// <summary>
+        /// Palindrome (reads the same forwards and backwards).
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("palindrome")]
+        public IActionResult Palindrome(string input = "abba")
+        {
+            string stringOutput = string.Empty;
+
+            for (int i = input.Length - 1; i >= 0; i--)
+            {
+                stringOutput += input[i];
+            }
+
+            return Ok(stringOutput == input ? "Palindrome" : "Not Palindrome");
+
+            //with inbuilt function
+
+            //char[] charArray = input.ToCharArray();
+            //Array.Reverse(charArray);
+            //return Ok(Ok(new string(charArray) == input ? "Palindrome" : "Not Palindrome"));
+
+        }
+
+        /// <summary>
+        /// Determine if two strings are anagrams of each other(strings contains same characters)
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("anagram")]
+        public IActionResult AnagramStrings(string input, string input2)
+        {
+            char[] charArray1 = input.ToCharArray();
+            char[] charArray2 = input2.ToCharArray();
+            Array.Sort(charArray1);
+            Array.Sort(charArray2);
+            return Ok(new string(charArray1) == new string(charArray2) ? "Anagram" : "Not Anagram");
+
         }
     }
 }
