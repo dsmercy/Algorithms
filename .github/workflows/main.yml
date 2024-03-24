@@ -81,4 +81,5 @@ jobs:
             --namespace ${{ env.NAMESPACE }} \
             --set image.repository=${{ env.IMAGE }} \
             --set image.tag=${{ env.TAG }} \
+            --set appname=${{ env.APPLICATION_NAME }} \
             --set namespace=${{ env.NAMESPACE }}
