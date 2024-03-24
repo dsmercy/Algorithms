@@ -30,7 +30,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ./algorithms
+          context: ./Algorithms/
           push: true
           tags: ${{ env.IMAGE }}:${{ env.TAG }}
 
