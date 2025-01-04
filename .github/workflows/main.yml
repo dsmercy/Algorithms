@@ -62,48 +62,52 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: checkout code
-        uses: actions/checkout@v2
+      run: |
+          echo "deploy-secrets code skipped"
+      # - name: checkout code
+      #   uses: actions/checkout@v2
 
-      - name: Set up Kubernetes cluster context
-        uses: azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-          namespace: ${{ env.NAMESPACE }}
+      # - name: Set up Kubernetes cluster context
+      #   uses: azure/k8s-set-context@v1
+      #   with:
+      #     kubeconfig: ${{ secrets.KUBECONFIG }}
+      #     namespace: ${{ env.NAMESPACE }}
 
-      - name: Deploy secrets to Kubernetes
-        run: |
-          kubectl --namespace ${{ env.NAMESPACE }} create secret generic ${{ env.APPLICATION_NAME }}-secrets --from-literal=my_connection_string=${{ secrets.MY_CONNECTION_STRING }} --dry-run=client -o yaml | kubectl apply -f -
+      # - name: Deploy secrets to Kubernetes
+      #   run: |
+      #     kubectl --namespace ${{ env.NAMESPACE }} create secret generic ${{ env.APPLICATION_NAME }}-secrets --from-literal=my_connection_string=${{ secrets.MY_CONNECTION_STRING }} --dry-run=client -o yaml | kubectl apply -f -
 
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-secrets
     steps:
-      - name: checkout code
-        uses: actions/checkout@v2
+      run: |
+          echo "deploy-app code skipped"
+      # - name: checkout code
+      #   uses: actions/checkout@v2
       
-      - name: Set up Kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
+      # - name: Set up Kubectl
+      #   uses: azure/setup-kubectl@v1
+      #   with:
+      #     version: 'latest'
 
-      - name: Set up Kubernetes cluster context
-        uses: azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBECONFIG }}
-          namespace: ${{ env.NAMESPACE }}
+      # - name: Set up Kubernetes cluster context
+      #   uses: azure/k8s-set-context@v1
+      #   with:
+      #     kubeconfig: ${{ secrets.KUBECONFIG }}
+      #     namespace: ${{ env.NAMESPACE }}
   
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.0.0
+      # - name: Set up Helm
+      #   uses: azure/setup-helm@v1
+      #   with:
+      #     version: v3.0.0
 
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl config current-context
-          helm upgrade --install ${{ env.APPLICATION_NAME }} ./deploy/algorithms/. \
-            --namespace ${{ env.NAMESPACE }} \
-            --set image.repository=${{ env.IMAGE }} \
-            --set image.tag=${{ env.TAG }} \
-            --set appname=${{ env.APPLICATION_NAME }} \
-            --set namespace=${{ env.NAMESPACE }}
+      # - name: Deploy to Kubernetes
+      #   run: |
+      #     kubectl config current-context
+      #     helm upgrade --install ${{ env.APPLICATION_NAME }} ./deploy/algorithms/. \
+      #       --namespace ${{ env.NAMESPACE }} \
+      #       --set image.repository=${{ env.IMAGE }} \
+      #       --set image.tag=${{ env.TAG }} \
+      #       --set appname=${{ env.APPLICATION_NAME }} \
+      #       --set namespace=${{ env.NAMESPACE }}
