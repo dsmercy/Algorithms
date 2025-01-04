@@ -26,7 +26,7 @@ jobs:
       - name: Check directories
         run: |
           echo "Listing files in the root directory:"
-          ls ./
+          ls ./ 
 
       - name: Build the solution
         run: |
@@ -50,19 +50,20 @@ jobs:
           echo "Restoring NuGet packages..."
           dotnet restore Algorithms.sln
 
-      - name: Run unit tests
+      - name: Run unit tests and generate coverage report
         run: |
           echo "Running unit tests..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal --collect:"XPlat Code Coverage"
 
       - name: Stop workflow if tests fail
         if: failure()
         run: |
           echo "Unit tests failed. Stopping workflow."
           exit 1
+
   sonarcloud:
     runs-on: ubuntu-latest
-    needs: build
+    needs: run-tests
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -79,12 +80,12 @@ jobs:
           mkdir -p .sonar/scanner
           dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
 
-      - name: Build and analyze
+      - name: Build and analyze with code coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.xml" /d:sonar.coverageReportPaths="**/TestResults/*/coverage.cobertura.xml"
           dotnet build Algorithms.sln
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
