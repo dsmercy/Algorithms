@@ -17,19 +17,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: check directories
+
+      - name: Check directories
         run: |
-          echo "ls ./"
+          echo "Listing files in the root directory:"
           ls ./
+
+      - name: Build the solution
+        run: |
+          echo "Building the solution..."
+          dotnet build Algorithms.sln --configuration Debug
+
       - name: Run unit tests
         run: |
           echo "Running unit tests..."
-          dotnet test Algorithms.Tests/ --no-build --verbosity normal
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal
+
       - name: Stop workflow if tests fail
         if: failure()
         run: |
           echo "Unit tests failed. Stopping workflow."
           exit 1
+
       - name: Login to Docker registry
         uses: docker/login-action@v2
         with:
