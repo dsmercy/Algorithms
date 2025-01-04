@@ -33,7 +33,7 @@ jobs:
           echo "Building the solution..."
           dotnet build Algorithms.sln --configuration Debug
 
-  run tests:
+  run-tests:
     runs-on: ubuntu-latest
     needs: build
     steps:
