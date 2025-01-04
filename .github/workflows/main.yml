@@ -60,7 +60,31 @@ jobs:
         run: |
           echo "Unit tests failed. Stopping workflow."
           exit 1
+  sonarcloud:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Install .NET 6 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Setup SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          token: ${{ secrets.SONAR_TOKEN }}
+          projectKey: dsmercy_Algorithms
+          organization: dsmercy
+
+      - name: Run SonarCloud Analysis
+        run: |
+          echo "Running SonarCloud analysis..."
+          dotnet sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet build Algorithms.sln
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
   push-docker-image:
     runs-on: ubuntu-latest
     needs: run-tests
