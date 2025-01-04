@@ -54,6 +54,8 @@ jobs:
         run: |
           echo "Running unit tests..."
           dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+          # Convert the coverage file to Cobertura format
+          reportgenerator "-reports:TestResults/**/coverage.cobertura.xml" "-targetdir:TestResults/Cobertura"
 
       - name: Stop workflow if tests fail
         if: failure()
