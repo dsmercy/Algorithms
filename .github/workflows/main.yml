@@ -21,6 +21,15 @@ jobs:
         run: |
           echo "ls ./"
           ls ./
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          dotnet test Algorithms.Tests/ --no-build --verbosity normal
+      - name: Stop workflow if tests fail
+        if: failure()
+        run: |
+          echo "Unit tests failed. Stopping workflow."
+          exit 1
       - name: Login to Docker registry
         uses: docker/login-action@v2
         with:
@@ -28,6 +37,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
+        if: success()
         uses: docker/build-push-action@v2
         with:
           context: ./Algorithms/
