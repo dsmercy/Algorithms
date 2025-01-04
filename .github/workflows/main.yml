@@ -43,7 +43,7 @@ jobs:
           echo "Running SonarQube analysis..." 
           dotnet sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
           dotnet build Algorithms.sln --configuration Debug 
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+          
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
   run-tests:
