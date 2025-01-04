@@ -26,7 +26,7 @@ jobs:
       - name: Check directories
         run: |
           echo "Listing files in the root directory:"
-          ls ./
+          ls ./ 
 
       - name: Build the solution
         run: |
@@ -50,16 +50,17 @@ jobs:
           echo "Restoring NuGet packages..."
           dotnet restore Algorithms.sln
 
-      - name: Run unit tests
+      - name: Run unit tests and collect coverage
         run: |
-          echo "Running unit tests..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal
+          echo "Running unit tests and collecting coverage..."
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --collect:"XPlat Code Coverage"
 
       - name: Stop workflow if tests fail
         if: failure()
         run: |
           echo "Unit tests failed. Stopping workflow."
           exit 1
+
   sonarcloud:
     runs-on: ubuntu-latest
     needs: build
@@ -84,7 +85,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.xml" /d:sonar.coverageReportPaths="**/coverage.cobertura.xml"
           dotnet build Algorithms.sln
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
@@ -107,6 +108,7 @@ jobs:
           context: ./Algorithms/
           push: true
           tags: ${{ env.IMAGE }}:${{ env.TAG }}
+
 
   deploy-secrets:
     runs-on: ubuntu-latest
