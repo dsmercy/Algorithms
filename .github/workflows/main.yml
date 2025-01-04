@@ -81,19 +81,16 @@ jobs:
         with:
           fetch-depth: 0  # Disable shallow clone for better SonarCloud analysis
 
-      - name: Install SonarScanner
+      - name: Install ReportGenerator tool (compatible version)
         run: |
-          mkdir -p .sonar/scanner
-          dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
+          dotnet tool install --global dotnet-reportgenerator-globaltool --version 4.8.9
 
-      - name: Build and analyze with code coverage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Run unit tests and generate coverage report
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.xml" /d:sonar.coverageReportPaths="TestResults/Cobertura/*coverage.cobertura.xml"
-          dotnet build Algorithms.sln
-          .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          echo "Running unit tests..."
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+          # Convert the coverage file to Cobertura format using ReportGenerator
+          reportgenerator "-reports:TestResults/**/*.xml" "-targetdir:TestResults/Cobertura"
 
   push-docker-image:
     runs-on: ubuntu-latest
