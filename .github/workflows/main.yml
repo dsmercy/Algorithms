@@ -32,6 +32,18 @@ jobs:
         run: |
           echo "Building the solution..."
           dotnet build Algorithms.sln --configuration Debug
+      - name: Install SonarQube Scanner 
+        run: | 
+          echo "Installing SonarQube Scanner..." 
+          dotnet tool install --global dotnet-sonarscanner 
+      - name: Run SonarQube analysis 
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+        run: | 
+          echo "Running SonarQube analysis..." 
+          dotnet sonarscanner begin /k:"dsmercy_Algorithms" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
+          dotnet build Algorithms.sln --configuration Debug 
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
   run-tests:
     runs-on: ubuntu-latest
