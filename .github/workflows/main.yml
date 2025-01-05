@@ -54,16 +54,16 @@ jobs:
       - name: Run unit tests and collect code coverage
         run: |
           echo "Running unit tests with code coverage..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj \
-            --configuration Debug \
-            --no-restore \
-            --collect:"XPlat Code Coverage" \
-            --verbosity normal
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --collect:"XPlat Code Coverage"
+
+      - name: Debug TestResults Directory
+        run: |
+          echo "Checking TestResults directory..."
+          ls -R ./TestResults || echo "TestResults directory not found!"      
 
       - name: Prepare code coverage report path
         run: |
           echo "##[group] Locate coverage.opencover.xml"
-          ls -R # List all files for debugging
           REPORT_PATH=$(find ./TestResults -name 'coverage.opencover.xml' | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found!"
