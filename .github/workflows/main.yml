@@ -71,7 +71,7 @@ jobs:
       #     fetch-depth: 0  # Disable shallow clone for better SonarCloud analysis
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
       - name: Install .NET 6 SDK
         uses: actions/setup-dotnet@v3
         with:
@@ -106,33 +106,12 @@ jobs:
           echo "Coverage report found at $REPORT_PATH"
           echo "REPORT_PATH=$REPORT_PATH" >> $GITHUB_ENV
           echo "##[endgroup]"
-      
-      - name: Install ReportGenerator
-        run: |
-          dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.3.0
-
-      - name: Convert coverage report to Cobertura format
-        run: |
-          reportgenerator \
-            -reports:"./Algorithms.Tests/TestResults/**/coverage.cobertura.xml" \
-            -targetdir:"coverage-report" \
-            -reporttypes:"Cobertura"
-
-      - name: Inspect Cobertura Report
-        run: |
-          cat coverage-report/Cobertura.xml
-          ls ./
-          ls ./coverage-report/
-      - name: Debug Coverage Report Path
-        run: |
-          echo "Coverage Report Path: ${{ env.REPORT_PATH }}"
 
       - name: Install SonarScanner
         run: |
           mkdir -p .sonar/scanner
           dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
-
-      - name: Build and analyze with SonarScanner
+      - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -142,7 +121,7 @@ jobs:
             /o:"dsmercy" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.coverageReportPaths="coverage-report/Cobertura.xml" \
+            /d:sonar.coverageReportPaths="${{ env.REPORT_PATH }}" \
             /d:sonar.scanner.scanAll=false
           dotnet build Algorithms.sln
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
