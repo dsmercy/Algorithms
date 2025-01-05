@@ -118,6 +118,14 @@ jobs:
             -targetdir:"coverage-report" \
             -reporttypes:"Cobertura"
 
+      - name: Inspect Cobertura Report
+        run: |
+          cat coverage-report/Cobertura.xml
+          ls ./
+          ls ./coverage-report/
+      - name: Debug Coverage Report Path
+        run: |
+          echo "Coverage Report Path: ${{ env.REPORT_PATH }}"
 
       - name: Install SonarScanner
         run: |
