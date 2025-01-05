@@ -63,7 +63,8 @@ jobs:
       - name: Prepare code coverage report path
         run: |
           echo "##[group] Locate coverage.opencover.xml"
-          REPORT_PATH=$(find . -name 'coverage.opencover.xml' | head -n 1)
+          ls -R # List all files for debugging
+          REPORT_PATH=$(find ./TestResults -name 'coverage.opencover.xml' | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found!"
             exit 1
