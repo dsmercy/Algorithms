@@ -59,12 +59,12 @@ jobs:
       - name: Debug TestResults Directory
         run: |
           echo "Checking TestResults directory..."
-          ls -R ./TestResults || echo "TestResults directory not found!"      
+          ls -R ./Algorithms.Tests/TestResults || echo "TestResults directory not found!"      
 
       - name: Prepare code coverage report path
         run: |
           echo "##[group] Locate coverage.opencover.xml"
-          REPORT_PATH=$(find ./TestResults -name 'coverage.opencover.xml' | head -n 1)
+          REPORT_PATH=$(find ./Algorithms.Tests/TestResults -name 'coverage.opencover.xml' | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found!"
             exit 1
