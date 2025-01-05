@@ -109,7 +109,7 @@ jobs:
       
       - name: Install ReportGenerator
         run: |
-          dotnet tool install -g dotnet-reportgenerator-globaltool
+          dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.3.0
 
       - name: Convert coverage report to Cobertura format
         run: |
