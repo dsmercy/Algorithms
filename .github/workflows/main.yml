@@ -54,17 +54,20 @@ jobs:
       - name: Run unit tests and collect code coverage
         run: |
           echo "Running unit tests with code coverage..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --collect:"XPlat Code Coverage"
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj \
+            --configuration Debug \
+            --no-restore \
+            --collect:"XPlat Code Coverage"
 
       - name: Debug TestResults Directory
         run: |
           echo "Checking TestResults directory..."
-          ls -R ./Algorithms.Tests/TestResults || echo "TestResults directory not found!"      
+          ls -R ./Algorithms.Tests/TestResults || echo "TestResults directory not found!"
 
       - name: Prepare code coverage report path
         run: |
-          echo "##[group] Locate coverage.opencover.xml"
-          REPORT_PATH=$(find ./Algorithms.Tests/TestResults -name 'coverage.opencover.xml' | head -n 1)
+          echo "##[group] Locate coverage.cobertura.xml"
+          REPORT_PATH=$(find ./Algorithms.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found!"
             exit 1
@@ -93,7 +96,8 @@ jobs:
             -Dsonar.projectKey=dsmercy_Algorithms
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-            -Dsonar.cs.opencover.reportsPaths=${{ env.REPORT_PATH }}
+            -Dsonar.coverageReportPaths=${{ env.REPORT_PATH }}
+
 
   # sonarcloud:
   #   runs-on: ubuntu-latest
