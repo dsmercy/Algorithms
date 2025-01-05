@@ -107,10 +107,13 @@ jobs:
           echo "REPORT_PATH=$REPORT_PATH" >> $GITHUB_ENV
           echo "##[endgroup]"
 
-      - name: Install SonarScanner
+      - name: Install SonarScanner 1.9
         run: |
           mkdir -p .sonar/scanner
-          dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
+          curl -sL https://github.com/SonarSource/sonar-scanner-dotnet/releases/download/1.9/sonar-scanner-cli-1.9-linux.zip -o sonar-scanner-cli.zip
+          unzip sonar-scanner-cli.zip -d .sonar/scanner
+          rm sonar-scanner-cli.zip
+
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -123,6 +126,7 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.coverageReportPaths="${{ env.REPORT_PATH }}" \
             /d:sonar.scanner.scanAll=false
+            /d:sonar.relative_paths=True
           dotnet build Algorithms.sln
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
   push-docker-image:
