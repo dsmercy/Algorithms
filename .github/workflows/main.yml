@@ -66,9 +66,44 @@ jobs:
           java-version: 17
           distribution: 'zulu'
 
-      - uses: actions/checkout@v4
+      # - uses: actions/checkout@v4
+      #   with:
+      #     fetch-depth: 0  # Disable shallow clone for better SonarCloud analysis
+
+      - name: Install .NET 6 SDK
+        uses: actions/setup-dotnet@v3
         with:
-          fetch-depth: 0  # Disable shallow clone for better SonarCloud analysis
+          dotnet-version: '6.0.x'
+
+      - name: Restore NuGet packages
+        run: |
+          echo "Restoring NuGet packages..."
+          dotnet restore Algorithms.sln
+
+      - name: Run unit tests and collect code coverage
+        run: |
+          echo "Running unit tests with code coverage..."
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj \
+            --configuration Debug \
+            --no-restore \
+            --collect:"XPlat Code Coverage"
+
+      - name: Debug TestResults Directory
+        run: |
+          echo "Checking TestResults directory..."
+          ls -R ./Algorithms.Tests/TestResults || echo "TestResults directory not found!"
+
+      - name: Prepare code coverage report path
+        run: |
+          echo "##[group] Locate coverage.cobertura.xml"
+          REPORT_PATH=$(find ./Algorithms.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "Coverage report not found!"
+            exit 1
+          fi
+          echo "Coverage report found at $REPORT_PATH"
+          echo "REPORT_PATH=$REPORT_PATH" >> $GITHUB_ENV
+          echo "##[endgroup]"
 
       - name: Install SonarScanner
         run: |
@@ -79,7 +114,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          .sonar/scanner/dotnet-sonarscanner begin /k:"dsmercy_Algorithms" /o:"dsmercy" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.scanner.scanAll=false
+          .sonar/scanner/dotnet-sonarscanner begin \
+            /k:"dsmercy_Algorithms" \
+            /o:"dsmercy" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.coverageReportPaths="${{ env.REPORT_PATH }}" \
+            /d:sonar.scanner.scanAll=false
           dotnet build Algorithms.sln
           .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
   push-docker-image:
