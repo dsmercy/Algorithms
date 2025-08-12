@@ -39,7 +39,8 @@ jobs:
           dotnet restore Algorithms.sln
       - run: dotnet add Algorithms.Tests/Algorithms.Tests.csproj package coverlet.collector
       - run: mkdir -p .sonar/scanner && dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
-      - env:
+      - name: Begin SonarCloud analysis
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
