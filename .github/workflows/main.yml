@@ -91,6 +91,7 @@ jobs:
       - name: Upload to Coverity Scan
         env:
           COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
         run: |
           curl --form token=$COVERITY_TOKEN \
                --form email=$USER_EMAIL \
