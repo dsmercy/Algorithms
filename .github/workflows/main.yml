@@ -131,7 +131,7 @@ jobs:
       - name: Display message
         run: |
           echo "deploy-secrets code skipped"
-      # Uncomment below to enable secrets deployment
+      # Uncomment below to enable secrets deployment 
       # - name: checkout code
       #   uses: actions/checkout@v2
       # - name: Set up Kubernetes cluster context
