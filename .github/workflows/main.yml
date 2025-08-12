@@ -61,7 +61,8 @@ jobs:
             --no-restore \
             --verbosity normal \
             --collect:"XPlat Code Coverage" \
-            --results-directory ./Algorithms.Tests/TestResults
+            --results-directory ./Algorithms.Tests/TestResults \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
