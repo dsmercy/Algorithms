@@ -73,6 +73,32 @@ jobs:
           name: code-coverage
           path: Algorithms.Tests/TestResults
 
+  coverity-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Coverity Tool
+        run: |
+          wget https://scan.coverity.com/download/linux64 --post-data "token=${{ secrets.COVERITY_TOKEN }}&project=dsmercy%2FAlgorithms" -O coverity_tool.tgz
+          mkdir coverity
+          tar xzf coverity_tool.tgz --strip 1 -C coverity
+      - name: Build with Coverity
+        run: |
+          ./coverity/bin/cov-build --dir cov-int dotnet build Algorithms.sln --configuration Debug
+      - name: Package Coverity Results
+        run: tar czvf coverity_results.tgz cov-int
+      - name: Upload to Coverity Scan
+        env:
+          COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+        run: |
+          curl --form token=$COVERITY_TOKEN \
+               --form email=$USER_EMAIL \
+               --form file=@coverity_results.tgz \
+               --form version="CI ${{ github.run_number }}" \
+               --form description="Automated build from GitHub Actions" \
+               https://scan.coverity.com/builds?project=dsmercy%2FAlgorithms
+
   push-docker-image:
     runs-on: ubuntu-latest
     needs: test-and-coverage
@@ -107,7 +133,7 @@ jobs:
   deploy:
     name: Deploy Application
     runs-on: ubuntu-latest
-    needs: [test-and-coverage, push-docker-image, deploy-secrets]
+    needs: [test-and-coverage, push-docker-image, deploy-secrets, coverity-scan]
     steps:
       - run: echo "deploy-app code skipped"
       # Uncomment below to enable app deployment
