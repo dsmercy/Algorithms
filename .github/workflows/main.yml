@@ -106,7 +106,7 @@ jobs:
 
   push-docker-image:
     runs-on: ubuntu-latest
-    needs: test-and-sonarcloud
+    needs: test-and-coverage
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -149,7 +149,7 @@ jobs:
     name: Deploy Application
     runs-on: ubuntu-latest
     needs:
-      - test-and-sonarcloud
+      - test-and-coverage
       - push-docker-image
       - deploy-secrets
     steps:
