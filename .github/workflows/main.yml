@@ -17,7 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-dotnet@v3
-        with: { dotnet-version: '6.0.x' }
+        with:
+          dotnet-version: '6.0.x'
       - run: |
           echo "Listing files in the root directory:"
           ls ./
@@ -31,9 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v4
-        with: { java-version: 17, distribution: 'zulu' }
+        with:
+          java-version: 17
+          distribution: 'zulu'
       - uses: actions/setup-dotnet@v3
-        with: { dotnet-version: '6.0.x' }
+        with:
+          dotnet-version: '6.0.x'
       - run: |
           echo "Restoring NuGet packages..."
           dotnet restore Algorithms.sln
@@ -60,7 +64,9 @@ jobs:
             --results-directory ./Algorithms.Tests/TestResults \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       - run: dotnet build Algorithms.sln
-      - env: { SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} }
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
       - uses: actions/upload-artifact@v4
         with:
@@ -107,13 +113,15 @@ jobs:
       # Uncomment below to enable app deployment
       # - uses: actions/checkout@v2
       # - uses: azure/setup-kubectl@v1
-      #   with: { version: 'latest' }
+      #   with:
+      #     version: 'latest'
       # - uses: azure/k8s-set-context@v1
       #   with:
       #     kubeconfig: ${{ secrets.KUBECONFIG }}
       #     namespace: ${{ env.NAMESPACE }}
       # - uses: azure/setup-helm@v1
-      #   with: { version: v3.0.0 }
+      #   with:
+      #     version: v3.0.0
       # - run: |
       #     kubectl config current-context
       #     helm upgrade --install ${{ env.APPLICATION_NAME }} ./deploy/algorithms/. \
