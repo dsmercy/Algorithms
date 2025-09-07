@@ -88,5 +88,47 @@ namespace Algorithms.Controllers
 
             return Ok("Fibonacci");
         }
+
+        /// <summary>
+        /// Perfect Number (sum of its proper divisors equals the number itself)
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("perfect")]
+        public IActionResult PerfectNumber(int input = 6)
+        {
+            if (input <= 1)
+                return Ok("Not Perfect");
+
+            int sum = 0;
+            for (int i = 1; i <= input / 2; i++)
+            {
+                if (input % i == 0)
+                {
+                    sum += i;
+                }
+            }
+
+            return Ok(sum == input ? "Perfect Number" : "Not Perfect Number");
+        }
+
+        /// <summary>
+        /// Palindrome Number (reads the same backward as forward)
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("palindrome")]
+        public IActionResult PalindromeNumber(int input = 121)
+        {
+            int originalNumber = input;
+            int reversedNumber = 0;
+
+            while (input > 0)
+            {
+                int digit = input % 10;
+                reversedNumber = reversedNumber * 10 + digit;
+                input /= 10;
+            }
+
+            return Ok(originalNumber == reversedNumber ? "Palindrome Number" : "Not Palindrome Number");
+        }
     }
 }
