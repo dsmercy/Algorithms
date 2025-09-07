@@ -31,8 +31,8 @@ securityContext: {}
 
 service:
   type: LoadBalancer
-  port: 5001
-  nodeport: 30001
+  port: 5003
+  nodeport: 30002
 
 ingress:
   enabled: false
