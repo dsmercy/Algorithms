@@ -11,8 +11,16 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse")]
-        public IActionResult ReverseString(string input="abcdef")
+        public IActionResult ReverseString(string input="abcdef", [FromQuery]bool useInbuiltFunction = false)
         {
+            if (useInbuiltFunction) {
+                //with inbuilt function
+
+                char[] charArray = input.ToCharArray();
+                Array.Reverse(charArray);
+                return Ok(new string(charArray));
+            }
+
             string stringOutput = string.Empty;
 
             for (int i = input.Length - 1; i >= 0; i--)
@@ -21,13 +29,6 @@ namespace Algorithms.Controllers
             }
 
             return Ok(stringOutput);
-
-            //with inbuilt function
-
-            //char[] charArray = input.ToCharArray();
-            //Array.Reverse(charArray);
-            //return Ok(new string(charArray));
-
         }
 
         /// <summary>
@@ -35,8 +36,17 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withorder")]
-        public IActionResult ReverseSentence(string input="do you bleed")
+        public IActionResult ReverseSentence(string input="do you bleed", bool useInbuiltFunction = false)
         {
+            if (useInbuiltFunction)
+            {
+                //with inbuilt function
+
+                char[] charArray = input.ToCharArray();
+                Array.Reverse(charArray);
+                return Ok(new string(charArray));
+            }
+
             string stringOutput = string.Empty;
 
             for (int i = input.Length - 1; i >= 0; i--)
@@ -45,13 +55,6 @@ namespace Algorithms.Controllers
             }
 
             return Ok(stringOutput);
-
-            //with inbuilt function
-
-            //char[] charArray = input.ToCharArray();
-            //Array.Reverse(charArray);
-            //return Ok(new string(charArray));
-
         }
 
         /// <summary>
@@ -59,8 +62,19 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("reverse/sentence/withoutorder")]
-        public IActionResult ReverseSentenceWithoutOrder(string input="you will")
+        public IActionResult ReverseSentenceWithoutOrder(string input="you will", bool useInbuiltFunction = false)
         {
+            if (useInbuiltFunction)
+            {
+                //with inbuilt function
+
+                string[] inputStringArray2 = input.Split(' ');
+
+                Array.Reverse(inputStringArray2);
+                string outputString2 = string.Join(" ", inputStringArray2);
+                return Ok(outputString2);
+            }
+
             string[] inputStringArray = input.Split(' ');
 
             string outputString = string.Empty;
@@ -71,15 +85,6 @@ namespace Algorithms.Controllers
             }
 
             return Ok(outputString.TrimEnd());
-
-            //with inbuilt function
-
-            //string[] inputStringArray = input.Split(' ');
-
-            //Array.Reverse(inputStringArray);
-            //string outputString = string.Join(" ", inputStringArray);
-            //return Ok(outputString);
-
         }
 
         /// <summary>
@@ -87,7 +92,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("sort/alphabetical")]
-        public IActionResult SortString(string input="bcadgf")
+        public IActionResult SortString(string input="bcadgf", bool useInbuiltFunction = false)
         {
             char[] inputStringArray = input.ToCharArray();
             Array.Sort(inputStringArray);
@@ -102,7 +107,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("char/occurnace")]
-        public IActionResult CharOccurnace(string input="")
+        public IActionResult CharOccurnace(string input="", bool useInbuiltFunction = false)
         {
             // Create a dictionary to store character counts
             Dictionary<char, int> charCounts = new Dictionary<char, int>();
@@ -139,7 +144,7 @@ namespace Algorithms.Controllers
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpGet("remove/duplicate")]
-        public IActionResult RemoveDuplicates(string input)
+        public IActionResult RemoveDuplicates(string input, bool useInbuiltFunction = false)
         {
             char[] charArray = input.ToCharArray();
             string output = string.Empty;
@@ -162,7 +167,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("substring/replace")]
-        public IActionResult SubstringSearch(string mainString, string subString)
+        public IActionResult SubstringSearch(string mainString, string subString, bool useInbuiltFunction = false)
         {
             return Ok(mainString.Contains(subString)?"Yes":"No");
         }
@@ -172,7 +177,7 @@ namespace Algorithms.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("substring/search")]
-        public IActionResult SubstringReplace(string mainString, string oldSubstring, string newSubstring)
+        public IActionResult SubstringReplace(string mainString, string oldSubstring, string newSubstring, bool useInbuiltFunction = false)
         {
             return Ok(mainString.Replace(oldSubstring, newSubstring));
         }
@@ -204,9 +209,13 @@ namespace Algorithms.Controllers
         /// <summary>
         /// Determine if two strings are anagrams of each other(strings contains same characters)
         /// </summary>
+        /// <remarks>
+        /// An *anagram* is a word or phrase formed by rearranging the letters of another word or phrase.
+        /// Example: "listen" and "silent".
+        /// </remarks>
         /// <returns></returns>
         [HttpGet("anagram")]
-        public IActionResult AnagramStrings(string input, string input2)
+        public IActionResult AnagramStrings(string input, string input2, bool useInbuiltFunction = false)
         {
             char[] charArray1 = input.ToCharArray();
             char[] charArray2 = input2.ToCharArray();
