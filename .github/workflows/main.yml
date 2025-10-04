@@ -2,8 +2,8 @@ name: CI/CD
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+
 env:
   APPLICATION_NAME: algorithms
   IMAGE: dsmercy/algorithms
@@ -15,103 +15,35 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install .NET 6 SDK
-        uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.0.x'
-
-      - name: Check directories
-        run: |
+      - run: |
           echo "Listing files in the root directory:"
           ls ./
-      - name: Build the solution
-        run: |
+      - run: |
           echo "Building the solution..."
           dotnet build Algorithms.sln --configuration Debug
-  run-tests:
+
+  test-and-coverage:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install .NET 6 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'
-
-      - name: Restore NuGet packages
-        run: |
-          echo "Restoring NuGet packages..."
-          dotnet restore Algorithms.sln
-      - name: Run unit tests
-        run: |
-          echo "Running unit tests..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj --configuration Debug --no-restore --verbosity normal
-      - name: Stop workflow if tests fail
-        if: failure()
-        run: |
-          echo "Unit tests failed. Stopping workflow."
-          exit 1
-  sonarcloud:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu'
-
-      # - uses: actions/checkout@v4
-      #   with:
-      #     fetch-depth: 0  # Disable shallow clone for better SonarCloud analysis
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Install .NET 6 SDK
-        uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.0.x'
-
-      - name: Restore NuGet packages
-        run: |
+      - run: |
           echo "Restoring NuGet packages..."
           dotnet restore Algorithms.sln
-
-      - name: Run unit tests and collect code coverage
-        run: |
-          echo "Running unit tests with code coverage..."
-          dotnet test Algorithms.Tests/Algorithms.Tests.csproj \
-            --configuration Debug \
-            --no-restore \
-            --collect:"XPlat Code Coverage"
-
-      - name: Debug TestResults Directory
-        run: |
-          echo "Checking TestResults directory..."
-          ls -R ./Algorithms.Tests/TestResults || echo "TestResults directory not found!"
-
-      - name: Prepare code coverage report path
-        run: |
-          echo "##[group] Locate coverage.cobertura.xml"
-          REPORT_PATH=$(find ./Algorithms.Tests/TestResults -name 'coverage.cobertura.xml' | head -n 1)
-          if [ -z "$REPORT_PATH" ]; then
-            echo "Coverage report not found!"
-            exit 1
-          fi
-          echo "Coverage report found at $REPORT_PATH"
-          echo "REPORT_PATH=$REPORT_PATH" >> $GITHUB_ENV
-          echo "##[endgroup]"
-
-      - name: Install SonarScanner
-        run: |
-          mkdir -p .sonar/scanner
-          dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
-      - name: Build and analyze
+      - run: dotnet add Algorithms.Tests/Algorithms.Tests.csproj package coverlet.collector
+      - run: mkdir -p .sonar/scanner && dotnet tool install dotnet-sonarscanner --tool-path .sonar/scanner
+      - name: Begin SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -121,25 +53,63 @@ jobs:
             /o:"dsmercy" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.coverageReportPaths="${{ env.REPORT_PATH }}" \
-            /d:sonar.scanner.scanAll=false
-          dotnet build Algorithms.sln
-          .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+            /d:sonar.cs.opencover.reportsPaths=Algorithms.Tests/TestResults/**/coverage.opencover.xml
+      - run: |
+          echo "Running unit tests and collecting coverage..."
+          dotnet test Algorithms.Tests/Algorithms.Tests.csproj \
+            --configuration Debug \
+            --no-restore \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./Algorithms.Tests/TestResults \
+            -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      - run: dotnet build Algorithms.sln
+      - name: End SonarCloud analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: .sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage
+          path: Algorithms.Tests/TestResults
+
+  coverity-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Coverity Tool
+        run: |
+          wget https://scan.coverity.com/download/linux64 --post-data "token=${{ secrets.COVERITY_TOKEN }}&project=dsmercy%2FAlgorithms" -O coverity_tool.tgz
+          mkdir coverity
+          tar xzf coverity_tool.tgz --strip 1 -C coverity
+      - name: Build with Coverity
+        run: |
+          ./coverity/bin/cov-build --dir cov-int dotnet build Algorithms.sln --configuration Debug
+      - name: Package Coverity Results
+        run: tar czvf coverity_results.tgz cov-int
+      - name: Upload to Coverity Scan
+        env:
+          COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+        run: |
+          curl --form token=$COVERITY_TOKEN \
+               --form email=$USER_EMAIL \
+               --form file=@coverity_results.tgz \
+               --form version="CI ${{ github.run_number }}" \
+               --form description="Automated build from GitHub Actions" \
+               https://scan.coverity.com/builds?project=dsmercy%2FAlgorithms
+
   push-docker-image:
     runs-on: ubuntu-latest
-    needs: run-tests
+    needs: test-and-coverage
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Login to Docker registry
-        uses: docker/login-action@v2
+      - uses: actions/checkout@v2
+      - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+      - uses: docker/build-push-action@v2
         with:
           context: ./Algorithms/
           push: true
@@ -149,48 +119,37 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Display message
-        run: |
-          echo "deploy-secrets code skipped"
-      # Uncomment below to enable secrets deployment
-      # - name: checkout code
-      #   uses: actions/checkout@v2
-      # - name: Set up Kubernetes cluster context
-      #   uses: azure/k8s-set-context@v1
+      - run: echo "deploy-secrets code skipped"
+      # Uncomment below to enable secrets deployment 
+      # - uses: actions/checkout@v2
+      # - uses: azure/k8s-set-context@v1
       #   with:
       #     kubeconfig: ${{ secrets.KUBECONFIG }}
       #     namespace: ${{ env.NAMESPACE }}
-      # - name: Deploy secrets to Kubernetes
-      #   run: |
+      # - run: |
       #     kubectl --namespace ${{ env.NAMESPACE }} create secret generic ${{ env.APPLICATION_NAME }}-secrets \
       #       --from-literal=my_connection_string=${{ secrets.MY_CONNECTION_STRING }} \
       #       --dry-run=client -o yaml | kubectl apply -f -
 
-  deploy-app:
+  deploy:
+    name: Deploy Application
     runs-on: ubuntu-latest
-    needs: deploy-secrets
+    needs: [test-and-coverage, push-docker-image, deploy-secrets, coverity-scan]
     steps:
-      - name: Display message
-        run: |
-          echo "deploy-app code skipped"
+      - run: echo "deploy-app code skipped"
       # Uncomment below to enable app deployment
-      # - name: checkout code
-      #   uses: actions/checkout@v2
-      # - name: Set up Kubectl
-      #   uses: azure/setup-kubectl@v1
+      # - uses: actions/checkout@v2
+      # - uses: azure/setup-kubectl@v1
       #   with:
       #     version: 'latest'
-      # - name: Set up Kubernetes cluster context
-      #   uses: azure/k8s-set-context@v1
+      # - uses: azure/k8s-set-context@v1
       #   with:
       #     kubeconfig: ${{ secrets.KUBECONFIG }}
       #     namespace: ${{ env.NAMESPACE }}
-      # - name: Set up Helm
-      #   uses: azure/setup-helm@v1
+      # - uses: azure/setup-helm@v1
       #   with:
       #     version: v3.0.0
-      # - name: Deploy to Kubernetes
-      #   run: |
+      # - run: |
       #     kubectl config current-context
       #     helm upgrade --install ${{ env.APPLICATION_NAME }} ./deploy/algorithms/. \
       #       --namespace ${{ env.NAMESPACE }} \
